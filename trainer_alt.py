@@ -34,7 +34,6 @@ from lib.datasets.transforms import GreyToColor
 from lib.datasets.custom_dataset import cat_dataloaders, MultiEpochsDataLoader
 
 import matplotlib.pyplot as plt 
-# from metann import Learner
 # pytorch pretrained model is saved at:
 os.environ['TORCH_HOME'] = os.path.realpath('lib/networks/')  
 torch.set_num_threads(1)
@@ -45,7 +44,6 @@ def add_basic_args(parser):
         choices=['digits', 'pacs', 'cifar', 'officehome'], 
         help='name of ssdg benchmark')
     parser.add_argument('--source', '-sc', type=str.lower, default='photo',
-        # choices=['photo', 'art_painting', 'cartoon', 'sketch', 'mnist10k', 'cifar'],
         help='souce domain for training')
     parser.add_argument('--feat', type=str, default='none', 
         help='extractor for feature loss')
@@ -322,7 +320,6 @@ class ALT:
         # set it to random init 
         rand_trans_module.apply(self.init_weights)
         # now combine with self.trans_module (this has been optimized)
-
         for p_in1, p_in2 in zip(rand_trans_module.parameters(), self.trans_module.parameters()):
             p_in2.data = nn.Parameter(0.5*p_in1 + 0.5*p_in2)
 
@@ -473,9 +470,7 @@ class ALT:
                 )
             aug_optimizer, _ = self.set_optimizer_and_scheduler(
                 self.trans_module.parameters(), 
-                lr=self.args.lr_adv #, 
-                # SGD=self.args.SGD, 
-                # momentum=self.args.momentum
+                lr=self.args.lr_adv
                 )
             
             lr_factor = 1
@@ -556,9 +551,6 @@ class ALT:
         self.resume_model(net, test_latest=True)
         self.test(net, testloaders)
         self.print_now()
-        # print("\n========Testing Target========")
-        # self.resume_model(net, test_target=True)
-        # self.test(net, testloaders)
 
     def save_images(self, inputs, epoch, batch_idx, name='inputs'):
         samples_in = vutils.make_grid(inputs, nrow=8)
@@ -677,13 +669,6 @@ class ALT:
                         loss_aug.backward()
                         aug_optimizer.step()
 
-                        # with torch.no_grad():
-                            # diff = F.mse_loss(x_g, x_g_old)
-                            # print(diff)
-
-
-
-                    # self.trans_module.eval()
                     # get final x_g output 
                     x_g = self.trans_module(inputs)
                     #### r() randconv component
@@ -699,11 +684,8 @@ class ALT:
                             self.save_images(viz_g, epoch, batch_idx, 'g')
                             self.save_images(viz_r, epoch, batch_idx, 'r')
                             self.save_images(viz_x, epoch, batch_idx, 'x')
-                            # print("g() range", x_g.min(), x_g.max())
-                            # print("r() range", x_r.min(), x_r.max())
 
 
-                    # net.train()
                     #### consistency loss
                     outs_r = net(x_r) 
                     outs_g = net(x_g)
@@ -712,7 +694,6 @@ class ALT:
                     p_r = F.softmax(outs_r, dim=1)
                     p_g = F.softmax(outs_g/self.args.temp, dim=1)
 
-                    # p_g = F.softmax(outs_g, dim=1) 
                     p_mix = (p_clean+ self.args.wr*p_r+ (2-self.args.wr)*p_g)/3
                     log_mix = torch.clamp(p_mix, 1e-4, 1).log() 
                     kl_clean = self.kl_div(log_mix, p_clean)

@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-"""
-AlexNet with small kernal size
-
-Created by zhenlinxu on 12/26/2019
-"""
-
-
 import torch.nn as nn
 
 __all__ = ['DigitNet']
