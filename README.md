@@ -1,5 +1,5 @@
 # Adversarially Learned Transformations (ALT)
-Code for our paper: "Improving Diversity with Adversarially Learned Transformations for Domain Generalization"
+Code for our paper: ["Improving Diversity with Adversarially Learned Transformations for Domain Generalization"](https://arxiv.org/abs/2206.07736) (WACV 2023).
 To reproduce results for each benchmark, the following steps should be followed.
 
 ## Data Download:
